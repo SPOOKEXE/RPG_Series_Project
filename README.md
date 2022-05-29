@@ -1,11 +1,14 @@
 # RPG_Series_Project
 RPG Series Project. Produced by SPOOK_EXE and contributed to by community members.
 MIT License; meaning its available to all for free use anywhere.
+
 ## Notes for scripting;
 **> When UI is closed;**
 \- have all events disconnected and frames destroyed / stashed.
+
 **> When UI is being opened**
 \- have all events reconnect and frames recreated / parented back.
+
 **> Keep everything organized.**
 \- follow what i have been doing with organization
 
