@@ -14,6 +14,10 @@ MIT License; meaning its available to all for free use anywhere.
 
 *This will be using my framework, however, you can opt-in to fork the project and port it to your own*
 
+Note: ***USE ROJO VERSION 7!!***  
+`dev` is pushed to the staging game  
+`live` is pushed to the live game
+
 *If you are providing code contributions that require models to be added to the game,
 include it in the "IMPORT" folder on your branch and place them in folders respective to 
 where you need them added (eg; ReplicatedStorage, ServerStorage, StarterPlayerScripts)*.
