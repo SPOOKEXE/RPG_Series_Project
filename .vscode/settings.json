@@ -1,0 +1,9 @@
+{
+	"robloxLsp.diagnostics.globals": [
+		"SkateboardPlatform",
+		"Players"
+	],
+	"robloxLsp.diagnostics.disable": [
+		"unused-local"
+	]
+}
