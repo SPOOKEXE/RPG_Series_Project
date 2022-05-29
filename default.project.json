@@ -1,5 +1,5 @@
 {
-	"name": "fps-framework",
+	"name": "rpg-series",
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedFirst": {
