@@ -10,6 +10,9 @@ MIT License; meaning its available to all for free use anywhere.
 \- follow what i have been doing with organization
 
 *This will be using my framework, however, you can opt-in to fork the project and port it to your own*
-*If you are providing code contributions that require models to be added to the game, include it in the "IMPORT" folder on your branch and place them in folders respective to where you need them added (eg; ReplicatedStorage, ServerStorage, StarterPlayerScripts)*.
+
+*If you are providing code contributions that require models to be added to the game,
+include it in the "IMPORT" folder on your branch and place them in folders respective to 
+where you need them added (eg; ReplicatedStorage, ServerStorage, StarterPlayerScripts)*.
 
 Game Document; https://docs.google.com/document/d/19Nim_C9YRpZ5NZz8kSFIspgECMO1Jgm6v68JyOFAuJM/edit
