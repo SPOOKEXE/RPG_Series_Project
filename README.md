@@ -22,4 +22,8 @@ Note: ***USE ROJO VERSION 7!!***
 include it in the "IMPORT" folder on your branch and place them in folders respective to 
 where you need them added (eg; ReplicatedStorage, ServerStorage, StarterPlayerScripts)*.
 
-Game Document; https://docs.google.com/document/d/19Nim_C9YRpZ5NZz8kSFIspgECMO1Jgm6v68JyOFAuJM/edit
+Game Document;
+https://docs.google.com/document/d/19Nim_C9YRpZ5NZz8kSFIspgECMO1Jgm6v68JyOFAuJM/edit
+
+Trello Board;
+https://trello.com/b/xJfXwYGr/mythical-world
