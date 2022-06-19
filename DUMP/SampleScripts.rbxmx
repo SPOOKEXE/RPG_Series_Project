@@ -1,0 +1,922 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Folder" referent="RBXAB127B26292646468A3134C100D61537">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<string name="Name">Samples</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="Folder" referent="RBX2DCFC00AC6F940C88E0E5AF1D3FFD7D3">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<string name="Name">Achievements</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+			<Item class="ModuleScript" referent="RBX715317BDB9C24C5183C8555B5942FC94">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Achievements</string>
+					<string name="ScriptGuid">{95DA646C-A4C6-47A1-A31B-B7B98F61141D}</string>
+					<ProtectedString name="Source"><![CDATA[
+local function CreateBasicDisplay( titleText, descriptionText, iconId )
+	return {
+		Title = { Text = titleText, TextColor3 = Color3.new(1, 1, 1), },
+		Description = { Text = descriptionText, TextColor3 = Color3.new(1, 1, 1), },
+		IconLabel = { Image = iconId, ImageColor3 = Color3.new(1, 1, 1), },
+	}
+end
+
+-- // Module // --
+local Module = {}
+
+-- Zintenka gave the idea for Bonuses from achievements ;)
+Module.Achievements = {
+	{
+		ID = 'FirstTimeJoin',
+		ActualBadgeID = false,
+		
+		Bonuses = false,
+		
+		Display = CreateBasicDisplay('First Time Join', 'You have joined fishing tycoon for the first time!', 'rbxassetid://0'),
+	},
+	{
+		ID = 'FishingRank5',
+		ActualBadgeID = false,
+
+		Bonuses = {
+			FishermenCooldown = {
+				Multiplier = 1,
+				Offset = -0.5,
+			},
+			CoinMultiply = {
+				Multiplier = 0.1,
+				Offset = false,
+			}
+		},
+
+		Display = CreateBasicDisplay('Fishing Rank 5', [[Reached Fishing Rank 5!
+> -0.5s Fisherman Cooldown and 
+> 10% More Coins.]], 'rbxassetid://0'),
+	},
+	{
+		ID = 'Complete10Tasks',
+		ActualBadgeID = false,
+
+		Bonuses = {
+			FishermenCooldown = {
+				Multiplier = 1,
+				Offset = -0.25,
+			},
+		},
+
+		Display = CreateBasicDisplay('10 Tasks Completed!', 'You have completed 10 tasks! -0.25s Fisherman Cooldown.', 'rbxassetid://0'),
+	},
+}
+
+function Module:GetAchievementFromID( AchievementID )
+	for i, Data in ipairs( Module.Achievements ) do
+		if Data.ID == AchievementID then
+			return Data, i
+		end
+	end
+	return nil
+end
+
+function Module:FindPlayerAchievementByID( AchievementTable, achievementID )
+	for i, achievementData in ipairs( AchievementTable ) do
+		if achievementData.ID == achievementID then
+			return achievementData, i
+		end
+	end
+	return nil
+end
+
+return Module
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBX3282A1ED48F444CAB9B167E7A7FE77A2">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">AchievementService</string>
+					<string name="ScriptGuid">{2767AC2A-7D26-49C1-8C57-4ED7BAD6F379}</string>
+					<ProtectedString name="Source"><![CDATA[
+local Players = game:GetService('Players')
+local BadgeService = game:GetService('BadgeService')
+
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedAssets = ReplicatedStorage:WaitForChild("Assets")
+local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
+
+local AchievementsData = ReplicatedModules.Definitions.Achievements
+
+local SystemsContainer = {}
+
+local Achievements = {
+	FirstTimeJoin = function( LocalPlayer, PlayerProfile )
+		return true
+	end,
+	FishingRank5 = function( LocalPlayer, PlayerProfile )
+		return PlayerProfile.Data.FishRank >= 5
+	end,
+	Complete10Tasks = function( LocalPlayer, PlayerProfile )
+		return #PlayerProfile.Data.CompletedQuests >= 10
+	end,
+}
+
+-- // Module // --
+local Module = {}
+
+function Module:GetAchievementBonuses( LocalPlayer )
+	local PlayerProfile = SystemsContainer.DataService:GetProfileFromPlayer( LocalPlayer )
+	if not PlayerProfile then
+		return
+	end
+	local BonusesTable = {}
+	for i, achievmentData in ipairs( PlayerProfile.Data.Achievements ) do
+		local achievementConfig = AchievementsData:GetAchievementFromID( achievmentData.ID )
+		if not achievementConfig then
+			warn('No achievement data set for ID: ', achievmentData.ID)
+			continue
+		end
+		if not achievementConfig.Bonuses then
+			continue
+		end
+		for bonusID, bonusData in pairs(achievementConfig.Bonuses) do
+			local ongoingBonus = BonusesTable[bonusID]
+			if ongoingBonus then
+				ongoingBonus.Multiplier += bonusData.Multiplier
+				ongoingBonus.Offset += bonusData.Offset
+			else
+				BonusesTable[bonusID] = {Multiplier = bonusData.Multiplier, Offset = bonusData.Offset}
+			end
+		end
+	end
+	return BonusesTable
+end
+
+function Module:RewardBadge( LocalPlayer, PlayerProfile, AchievementData )
+	if not AchievementsData:FindPlayerAchievementByID(PlayerProfile.Data.Achievements, AchievementData.ID) then
+		warn('Reward Achievement Effect for player ', LocalPlayer.Name, AchievementData.ID)
+		table.insert(PlayerProfile.Data.Achievements, {
+			ID = AchievementData.ID, 
+			Timestamp = ReplicatedModules.Utility.Time:Get()
+		})
+	end
+	if AchievementData.ActualBadgeID then
+		if not BadgeService:UserHasBadgeAsync( LocalPlayer.UserId, AchievementData.ActualBadgeID ) then
+			BadgeService:AwardBadge( LocalPlayer.UserId, AchievementData.ActualBadgeID )
+		end
+	end
+end
+
+function Module:UpdateAchievements( LocalPlayer )
+	local PlayerProfile = SystemsContainer.DataService:GetProfileFromPlayer( LocalPlayer )
+	if not PlayerProfile then
+		return
+	end
+	for i, achievementData in ipairs( AchievementsData.Achievements ) do
+		local hasAchievementReq = Achievements[achievementData.ID]
+		if not hasAchievementReq then
+			warn('No Achievement Function has been setup for achievement ', achievementData.ID)
+			continue
+		end
+		if hasAchievementReq( LocalPlayer, PlayerProfile ) then
+			--print('Has the achievment requirements; ', LocalPlayer.Name, achievementData.ID)
+			Module:RewardBadge( LocalPlayer, PlayerProfile, achievementData )
+		else
+			--print('Does not have the achievement requirements; ', LocalPlayer.Name, achievementData.ID)
+		end
+	end
+	SystemsContainer.ChatService:UpdateChatTags( LocalPlayer )
+end
+
+function Module:UpdateAllAchievements()
+	for _, LocalPlayer in ipairs( Players:GetPlayers() ) do
+		task.spawn(function()
+			Module:UpdateAchievements( LocalPlayer )
+		end)
+	end
+end
+
+function Module:Init( otherSystems )
+	
+	SystemsContainer = otherSystems
+	
+	--[[
+	Module:UpdateAllAchievements()
+	Players.PlayerAdded:Connect(function(LocalPlayer)
+		Module:UpdateAllAchievements()
+	end)]]
+	
+end
+
+return Module
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="ModuleScript" referent="RBX2925535F52C5487AB7B345B2C3BC0521">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Achievements</string>
+					<string name="ScriptGuid">{D546DD8C-C37A-46F9-A1E3-4DAD71A4721B}</string>
+					<ProtectedString name="Source"><![CDATA[
+local Players = game:GetService('Players')
+local LocalPlayer = Players.LocalPlayer
+local LocalAssets = LocalPlayer:WaitForChild('PlayerScripts'):WaitForChild('Assets')
+local LocalModules = require(LocalPlayer:WaitForChild('PlayerScripts'):WaitForChild('Modules'))
+
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedAssets = ReplicatedStorage:WaitForChild('Assets')
+local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
+local ReplicatedCore = require(ReplicatedStorage:WaitForChild('Core'))
+local ReplicatedData = ReplicatedCore.ReplicatedData
+
+local Interface = LocalPlayer:WaitForChild('PlayerGui'):WaitForChild('Interface')
+local AchievementsFrame = Interface:WaitForChild('AchievementsFrame')
+
+local AchievementsModule = ReplicatedModules.Definitions.Achievements
+
+local SystemsContainer = {}
+
+local activeFrame, activeConfig = false, false
+local FrameToID = {}
+
+-- // Module // --
+local Module = {}
+
+function Module:UpdateSelected()
+	AchievementsFrame.LowerInfoFrame.Title.Visible = (activeConfig ~= nil)
+	AchievementsFrame.LowerInfoFrame.Description.Visible = (activeConfig ~= nil)
+	AchievementsFrame.LowerInfoFrame.Timestamp.Visible = (activeConfig ~= nil)
+	
+	if not activeConfig then
+		return
+	end
+	
+	local playerData = ReplicatedData:GetData('PlayerData')
+	local playerAchieveData = playerData and AchievementsModule:FindPlayerAchievementByID(playerData.Achievements, activeConfig.ID)
+	ReplicatedModules.Utility.Special:SetDisplayProperties(AchievementsFrame.LowerInfoFrame, activeConfig.Display)
+	if playerAchieveData and playerAchieveData.Timestamp then
+		local dt = os.date("*t", playerAchieveData.Timestamp)
+		AchievementsFrame.LowerInfoFrame.Timestamp.Text = string.format("%s/%s/%s %s:%s:%s", dt.day, dt.month, dt.year, dt.hour, dt.min, dt.sec)
+	else
+		AchievementsFrame.LowerInfoFrame.Timestamp.Text = "Not Unlocked"
+	end
+	activeFrame.Background.ImageColor3 = Color3.fromRGB(255, 197, 167)
+end
+
+function Module:Update()
+	local playerData = ReplicatedData:GetData('PlayerData')
+	if not playerData then
+		return
+	end
+	
+	--print('Update Achievements; ', playerData.Achievements)
+	for Frame, achievementID in pairs( FrameToID ) do
+		local achievementConfig = AchievementsModule:GetAchievementFromID( achievementID )
+		if not achievementConfig then
+			warn('Could not find achievement config for ID ', achievementID)
+			continue
+		end
+		local rewardedData = AchievementsModule:FindPlayerAchievementByID( playerData.Achievements, achievementID )
+		Frame.ShadowOverlay.Visible = (rewardedData == nil)
+	end
+	
+	Module:UpdateSelected()
+end
+
+function Module:Select( selectFrame, selectConfig )
+	if activeFrame then
+		activeFrame.Background.ImageColor3 = Color3.new(1, 1, 1)
+	end
+	activeFrame = (activeFrame ~= selectFrame) and selectFrame or nil
+	activeConfig = (activeFrame ~= nil) and selectConfig or nil
+	Module:Update()
+end
+
+function Module:Init( otherSystems )
+	
+	SystemsContainer = otherSystems
+	
+	task.spawn(function()
+		for index, achievementConfig in ipairs( AchievementsModule.Achievements ) do
+			local Frame = LocalAssets.UI.TemplateAchievement:Clone()
+			Frame.Name = achievementConfig.ID
+			Frame.LayoutOrder = index
+			ReplicatedModules.Utility.Special:SetDisplayProperties(Frame, achievementConfig.Display)
+			Frame.Parent = AchievementsFrame.LowerFrame.Scroll
+			local SelectButton = LocalModules.Utility.GuiButton:CreateActionButton({Parent = Frame})
+			SelectButton.Activated:Connect(function()
+				Module:Select( Frame, achievementConfig )
+			end)
+			FrameToID[Frame] = achievementConfig.ID
+		end
+		Module:Select(nil, nil)
+	end)
+	
+	ReplicatedData.OnUpdate:Connect(function(category)
+		if category == 'PlayerData' then
+			Module:Update()
+		end
+	end)
+	
+end
+
+return Module
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="ModuleScript" referent="RBX5A8C5F4C82E0463FA5F49F82EFD6F23F">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">ZoneRaycast</string>
+				<string name="ScriptGuid">{B86370FA-FA2E-4CE9-82F7-3C0EEA2EAFA7}</string>
+				<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedAssets = ReplicatedStorage:WaitForChild("Assets")
+local ReplicatedSystems = require(ReplicatedStorage:WaitForChild('Core'))
+local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
+
+local SystemsContainer = {}
+
+local TycoonsFolder = workspace:WaitForChild('Tycoons')
+
+local whitelistZoneNames = {'UpgradeTouch', 'SellFish', 'RodShopTouch', 'BoatShopTouch'}
+local whitelistModels = {}
+
+local function hasWhitelistedName( descendantName )
+	for i, str in ipairs( whitelistZoneNames ) do
+		if string.find(descendantName, str) then
+			return true
+		end
+	end
+	return false
+end
+
+-- // Module // --
+local Module = {}
+Module.onZoneEnter = ReplicatedModules.Classes.Event.New()
+Module.onZoneLeave = ReplicatedModules.Classes.Event.New()
+Module.activeZones = {}
+
+local rayParams = RaycastParams.new()
+rayParams.FilterDescendantsInstances = whitelistModels
+rayParams.FilterType = Enum.RaycastFilterType.Whitelist
+rayParams.IgnoreWater = true
+function Module:UpdateZones(LocalPlayer)
+	local CharacterCFrame = ReplicatedModules.Utility.Models:GetPlayerCFrame(LocalPlayer)
+	if (not CharacterCFrame) or (not Module.activeZones[LocalPlayer]) then
+		return false
+	end
+	
+	rayParams.FilterDescendantsInstances = whitelistModels
+	
+	local rayResult = workspace:Raycast( CharacterCFrame.Position, Vector3.new(0, -8, 0), rayParams )
+	local newActiveZones = {}
+	
+	-- update existing
+	local hasExisting = false
+	for i, Model in ipairs(Module.activeZones[LocalPlayer]) do 
+		if rayResult and rayResult.Instance and (Model == rayResult.Instance or rayResult.Instance:IsDescendantOf(Model)) then
+			table.insert(newActiveZones, Model)
+			hasExisting = true
+		else 
+			Module.onZoneLeave:Fire(LocalPlayer, Model)
+		end
+	end
+	
+	-- add any new zones
+	if rayResult and rayResult.Instance and (not hasExisting) then
+		for _, Model in ipairs(whitelistModels) do 
+			if rayResult.Instance == Model or rayResult.Instance:IsDescendantOf(Model) then
+				table.insert(newActiveZones, Model)
+				Module.onZoneEnter:Fire(LocalPlayer, Model)
+			end
+		end
+	end
+	
+	Module.activeZones[LocalPlayer] = newActiveZones
+end
+
+function Module:DescendantAdded(Descendant)
+	if Descendant:IsA('Model') and Descendant.PrimaryPart and hasWhitelistedName( Descendant.Name ) then
+		if not table.find(whitelistModels, Descendant) then
+			table.insert(whitelistModels, Descendant)
+		end
+	end
+end
+
+function Module:OnTycoonAdded(Folder : Folder)
+	local PurchasesFolder = Folder:WaitForChild('Purchases', 3)
+	local IslandFolder = Folder:WaitForChild('Island', 3)
+	if PurchasesFolder and IslandFolder then
+		-- When something is added
+		for _, Descendant : Model in ipairs(PurchasesFolder:GetDescendants()) do 
+			task.defer(function()
+				Module:DescendantAdded(Descendant)
+			end)
+		end
+		
+		for _, Descendant : Model in ipairs(IslandFolder:GetDescendants()) do 
+			task.defer(function()
+				Module:DescendantAdded(Descendant)
+			end)
+		end
+		
+		PurchasesFolder.ChildAdded:Connect(function(Descendant : Model)
+			for _, str in ipairs(whitelistZoneNames) do 
+				local Model = Descendant:FindFirstChild(str)
+				if Model then
+					Module:DescendantAdded(Model)
+				end
+			end
+		end)
+		
+		-- When something is removed
+		PurchasesFolder.ChildRemoved:Connect(function(Child : Model)
+			for i, WhitelistedObject in ipairs(whitelistModels) do 
+				if WhitelistedObject == Child or WhitelistedObject:IsDescendantOf(Child) then
+					table.remove(whitelistModels, i)
+				end
+			end
+		end)
+	end
+end
+
+function Module:Init(otherSystems)
+	
+	SystemsContainer = otherSystems
+	
+	for _, LocalPlayer in ipairs(Players:GetPlayers()) do 
+		Module.activeZones[LocalPlayer] = {}
+	end
+	Players.PlayerAdded:Connect(function(LocalPlayer)
+		Module.activeZones[LocalPlayer] = {}
+	end)
+	Players.PlayerRemoving:Connect(function(LocalPlayer)
+		Module.activeZones[LocalPlayer] = nil
+	end)
+	
+	for _, TycoonFolder in ipairs(TycoonsFolder:GetChildren()) do 
+		task.defer(function()
+			Module:OnTycoonAdded(TycoonFolder)
+		end)
+	end
+	
+	TycoonsFolder.ChildAdded:Connect(function(TycoonFolder)
+		Module:OnTycoonAdded(TycoonFolder)
+	end)
+	
+	ReplicatedModules.Classes.Timer.New({Interval = 0.25}):Connect(function()
+		for _, LocalPlayer in ipairs(Players:GetPlayers()) do
+			Module:UpdateZones(LocalPlayer)
+		end
+	end)
+	
+	Module.onZoneEnter:Connect(function(LocalPlayer, zoneModel)
+		print('Entered ', LocalPlayer, zoneModel)
+		if string.find(zoneModel.Name, 'SellFish') then
+			SystemsContainer.FishDataService:SellFishes( LocalPlayer )
+		end
+	end)
+	
+	Module.onZoneLeave:Connect(function(LocalPlayer, zoneModel)
+		--print('Left ', LocalPlayer, zoneModel)
+	end)
+	
+end
+
+return Module
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX27DCF979BBEC49F1AFC99A9067433AE6">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">ChanceService</string>
+				<string name="ScriptGuid">{9FD3B82E-BF83-4395-8070-71AD73778EA6}</string>
+				<ProtectedString name="Source"><![CDATA[
+-- // Module // --
+
+local Module = {}
+
+function Module:GetWeighted(dataTable, doubleChanceForLowers)
+
+	--[[
+		local dataTable = {
+			{"A", 5},
+			{"B", 2},
+			{"C", 2},
+			{"D", 3},
+			{"E", 3},
+			{"F", 3},
+			{"G", 1},
+			{"H", 8},
+			{"I", 12},
+			{"J", 2}
+		}
+	]]
+
+	local TotalWeight = 0
+	for _,ItemData in pairs(dataTable) do
+		TotalWeight = TotalWeight + ItemData[2]
+	end
+	
+	if doubleChanceForLowers then
+		local newDataTable = {}
+		local newTotalWeight = 0
+		for index = 1, #dataTable do
+			local weight = dataTable[index][2]
+			weight *= weight<=(TotalWeight/10) and 2 or 1
+			newDataTable[index] = {dataTable[index][1], weight}
+			newTotalWeight += weight
+		end
+		dataTable = newDataTable
+		TotalWeight = newTotalWeight
+	end
+	
+	local Chance = math.random(TotalWeight)
+	local Counter = 0
+	for _,ItemData in pairs(dataTable) do
+		Counter = Counter + ItemData[2]
+		if Chance <= Counter then
+			return ItemData[1]
+		end
+	end
+	return nil
+
+end
+
+return Module
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX68B6CA91AA384A9897786D571E803EC9">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">SoundService</string>
+				<string name="ScriptGuid">{8C368FC2-5D18-49B7-8793-666A0B1EAB82}</string>
+				<ProtectedString name="Source"><![CDATA[local Debris = game:GetService('Debris')
+
+local ReplicatedUtility = require(script.Parent.Parent.Utility)
+
+-- // Module // --
+local Module = {}
+
+function Module:AssertSound(Sound : (Instance | string))
+	
+	assert(typeof(Sound) == 'Instance' or typeof(Sound) == 'string', "Passed sound must be an Instance or string.")
+	
+	if typeof(Sound) == 'string' then
+		if string.find(Sound, 'rbxassetid://') then
+			local soundObj : Sound = script:FindFirstChild(Sound) 
+			if not soundObj then
+				soundObj = Instance.new('Sound')
+				soundObj.Name = Sound
+				soundObj.SoundId = Sound
+				soundObj.Parent = script
+			end
+			return soundObj
+		else 
+			warn('Invalid Sound Format: ', Sound)
+		end
+	elseif typeof(Sound) == 'Instance' then
+		if Sound:IsA('Sound') then
+			return Sound
+		else 
+			warn('Invalid Sound Instance: ', Sound, Sound.ClassName)
+		end
+	else 
+		warn('Invalid Sound Input, expected string/Instance: ', Sound)
+	end
+	
+	return nil
+	
+end
+
+function Module:CreateSoundAtPosition(Position : Vector3, Sound : Sound, Properties : table )
+	assert(typeof(Position) == 'Vector3', "Passed Position must be a Vector3.")
+	Sound = Module:AssertSound(Sound)
+	if Sound then
+		Sound = Sound:Clone()
+		local attachment = Instance.new('Attachment')
+		attachment.WorldPosition = Position
+		attachment.Parent = workspace.Terrain
+		Sound.Parent = attachment
+		ReplicatedUtility.Special:SetProperties(Sound, Properties)
+		return Sound, attachment
+	end
+	return nil
+end
+
+function Module:PlaySoundAtPosition(Position : Vector3, Sound : Sound, Properties : table )
+	local Sound = Module:CreateSoundAtPosition(Position, Sound, Properties)
+	if Sound then
+		Debris:AddItem(Sound.Parent, Sound.TimeLength + 0.05)
+		Sound:Play()
+	end
+	return Sound
+end
+
+return Module
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX9471C0F1117D4475A8D6D2A8FC20E02A">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">PhysicsService</string>
+				<string name="ScriptGuid">{736F26B6-14F0-4C0A-8CC8-2A62919B0E6A}</string>
+				<ProtectedString name="Source"><![CDATA[
+local PhysicsService = game:GetService('PhysicsService')
+
+-- // Module // --
+local Module = {}
+
+function Module:SetCollisionGroup(Object, CollisionGroup)
+	if Object:IsA('BasePart') then
+		return pcall(function() PhysicsService:SetPartCollisionGroup(Object, CollisionGroup) end)
+	end
+	return false, 'Invalid Object.'
+end
+
+function Module:SetModelGroup(Model, CollisionGroup, checkObject)
+	for index, part in ipairs(Model:GetDescendants()) do
+		if part:IsA('BasePart') and ((not checkObject) or checkObject(part)) then
+			Module:SetCollisionGroup(part, CollisionGroup)
+		end
+	end
+end
+
+function Module:SetModelGroupWithClassWhitelist(Model, CollisionGroup, whitelistClasses)
+	Module:SetModelGroup(Model, CollisionGroup, function(part)
+		return table.find(whitelistClasses, part.ClassName)
+	end)
+end
+
+function Module:SetModelGroupWithClassBlacklist(Model, CollisionGroup, blacklistClasses)
+	assert(typeof(blacklistClasses) == 'table', 'Whitelist Classes must be a table.')
+	Module:SetModelGroup(Model, CollisionGroup, function(part)
+		return not table.find(blacklistClasses, part.ClassName)
+	end)
+end
+
+return Module
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXBA2CBE098B92495580FE861E5D5A4E26">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">Movement</string>
+				<string name="ScriptGuid">{B41A707B-9A19-4601-A58D-EA2D0B3E0A4F}</string>
+				<ProtectedString name="Source"><![CDATA[local ContextActionService : ContextActionService = game:GetService('ContextActionService')
+
+-- // Module // --
+local Module = {}
+
+function Module:ToggleMovement(Enabled)
+	if Enabled then
+		ContextActionService:UnbindAction('disableMovement')
+	else 
+		ContextActionService:BindAction('disableMovement', function(action, state, keycode) 
+			return Enum.ContextActionResult.Sink
+		end, false, unpack(Enum.KeyCode:GetEnumItems()))
+	end
+end
+
+function Module:Init()
+	
+end
+
+return Module
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXF97E1AD5339B483C88DE692FB784A8F2">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">Swimming</string>
+				<string name="ScriptGuid">{C83545B0-35B7-4007-AA03-0C59D8AE5BB1}</string>
+				<ProtectedString name="Source"><![CDATA[local RunService = game:GetService('RunService')
+local ContextActionService = game:GetService('ContextActionService')
+local UserInputService = game:GetService('UserInputService')
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerScripts = LocalPlayer:WaitForChild("PlayerScripts")
+local LocalAssets = PlayerScripts:WaitForChild("Assets")
+local LocalModules = require(PlayerScripts:WaitForChild("Modules"))
+
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedAssets = ReplicatedStorage:WaitForChild("Assets")
+local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
+local ReplicatedSystems = require(ReplicatedStorage:WaitForChild('Core'))
+
+local ReplicatedData = ReplicatedSystems.ReplicatedData
+
+local CurrentCamera = workspace.CurrentCamera
+
+local SystemsContainer = {}
+
+local Character, Head, Humanoid, HumanoidRootPart = nil, nil, nil, nil
+local LoadedSwimAnimation, LoadedSwimIdleAnim, BodyPosition = nil, nil
+local Jumping = false
+local Timer = tick() + 0.1
+local LastCharacterPosition = nil
+
+local OceanHeight = 9.7
+
+local swimMoveAnimObj = Instance.new('Animation')
+swimMoveAnimObj.Name = 'SwimMoveAnimation'
+swimMoveAnimObj.AnimationId = 'rbxassetid://6298563901'
+swimMoveAnimObj.Parent = script
+
+local swimIdleAnimObj = Instance.new('Animation')
+swimIdleAnimObj.Name = 'SwimIdleAnimation'
+swimIdleAnimObj.AnimationId = 'rbxassetid://913389285'
+swimIdleAnimObj.Parent = script
+
+-- // Module // -- 
+local Module = { IsCharacterSwimming = false , IsCameraUnderwater = false }
+
+function Module:IsCharacterUnderwater()
+	local Value = HumanoidRootPart and HumanoidRootPart.Position.Y < OceanHeight and not Humanoid.Sit
+	Module.IsCharacterSwimming = Value
+	return Value
+end
+
+function Module:IsCameraUnderwater()
+	local Value = CurrentCamera.CFrame.Position.Y < OceanHeight
+	Module.IsCharacterSwimming = Value
+	return Value
+end
+
+function Module:OnJumpInput()
+	if Module:IsCharacterUnderwater() then 
+		Jumping = true 
+		BodyPosition.Parent = script 
+		Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		wait(0.3)
+		Jumping = false
+	end
+end
+
+function Module:OnCharacterAdded(NewCharacter)
+	if NewCharacter then 
+		Character = NewCharacter
+		Humanoid = NewCharacter:WaitForChild('Humanoid', 3)
+		HumanoidRootPart = NewCharacter:WaitForChild('HumanoidRootPart', 3)
+		if BodyPosition then
+			BodyPosition:Destroy()
+			BodyPosition = nil
+		end
+		BodyPosition = Instance.new("BodyPosition")
+		BodyPosition.Name = 'SwimBP'
+		BodyPosition.MaxForce = Vector3.new(0, 12000, 0)
+		BodyPosition.D = 2000
+		BodyPosition.Parent = script
+		local success, err = pcall(function()
+			LoadedSwimAnimation = Humanoid and Humanoid:LoadAnimation(swimMoveAnimObj)
+			LoadedSwimIdleAnim = Humanoid and Humanoid:LoadAnimation(swimIdleAnimObj)
+		end)
+		if not success then
+			warn(err)
+		end
+	end
+end
+
+function Module:Init(otherSystems)
+
+	SystemsContainer = otherSystems
+	
+	ContextActionService:BindAction('swimJump', function(actionName, inputState, inputObject) 
+		if actionName == 'swimJump' and inputState == Enum.UserInputState.Begin and (not Jumping) and Module:IsCharacterUnderwater() then 
+			Module:OnJumpInput()
+			return Enum.ContextActionResult.Sink
+		end
+		return Enum.ContextActionResult.Pass
+	end, false, Enum.KeyCode.Space)
+	
+	UserInputService.JumpRequest:Connect(function()
+		Module:OnJumpInput()
+	end)
+	
+	RunService.Heartbeat:Connect(function()
+		local characterUnderwater = Module:IsCharacterUnderwater()
+		if characterUnderwater and tick() > Timer and Humanoid then
+			Humanoid:UnequipTools()
+			Timer = tick() + 0.1
+		end
+		
+		if (not Jumping) and BodyPosition and BodyPosition.Parent then
+			BodyPosition.Position = Vector3.new(0, OceanHeight, 0)
+			BodyPosition.Parent = (characterUnderwater and HumanoidRootPart) and HumanoidRootPart or script
+		end
+		
+		local newPos = HumanoidRootPart and HumanoidRootPart.Position
+		if characterUnderwater then 
+			if typeof(newPos) == "Vector3" and typeof(LastCharacterPosition) == "Vector3" then
+				if (LastCharacterPosition-newPos).Magnitude > 0.1 then 	
+					-- moving whilst swimming, move animation
+					if LoadedSwimAnimation then
+						LoadedSwimAnimation:AdjustSpeed(0.1 + ((LastCharacterPosition-newPos).Magnitude*10/4))
+						if not LoadedSwimAnimation.IsPlaying then 
+							LoadedSwimAnimation:Play()
+						end
+					end
+					if LoadedSwimIdleAnim and LoadedSwimIdleAnim.IsPlaying then
+						LoadedSwimIdleAnim:Stop()
+					end
+				else 
+					-- not moving but swimming, idle animation
+					if LoadedSwimAnimation and LoadedSwimAnimation.IsPlaying then 
+						LoadedSwimAnimation:Stop()
+					end
+					if LoadedSwimIdleAnim and not LoadedSwimIdleAnim.IsPlaying then
+						LoadedSwimIdleAnim:Play()
+					end
+				end
+			end
+			LastCharacterPosition = newPos
+		else 
+			if LoadedSwimAnimation and LoadedSwimAnimation.IsPlaying then 
+				LoadedSwimAnimation:Stop()
+			end
+			if LoadedSwimIdleAnim and LoadedSwimIdleAnim.IsPlaying then 
+				LoadedSwimIdleAnim:Stop()
+			end
+		end
+	end)
+	
+	if LocalPlayer.Character then
+		task.spawn(function()
+			Module:OnCharacterAdded(LocalPlayer.Character)
+		end)
+	end
+	
+	LocalPlayer.CharacterAdded:Connect(function(NewCharacter)
+		Module:OnCharacterAdded(NewCharacter)
+	end)
+	
+end
+
+return Module
+
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+			<Item class="Animation" referent="RBX30E57EBCC9B94927B543E5886691B520">
+				<Properties>
+					<Content name="AnimationId"><url>http://www.roblox.com/asset/?id=913389285</url></Content>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">SwimIdle</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="Animation" referent="RBXCBDA5BD572284B1185A8C7CA7AA1E4A8">
+				<Properties>
+					<Content name="AnimationId"><url>http://www.roblox.com/asset/?id=913384386</url></Content>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">Swim</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+		</Item>
+	</Item>
+</roblox>

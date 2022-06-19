@@ -1,0 +1,12 @@
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+require(ReplicatedStorage:WaitForChild('Modules'))
+require(ReplicatedStorage:WaitForChild('Core'))
+local ServerStorage = game:GetService('ServerStorage')
+require(ServerStorage:WaitForChild('Modules'))
+require(ServerStorage:WaitForChild('Core'))
+
+local CmdrFolder = game:GetService('ServerScriptService'):WaitForChild('Cmdr')
+local Cmdr = require( CmdrFolder:WaitForChild('Cmdr') )
+--Cmdr:RegisterDefaultCommands() -- This loads the default set of commands that Cmdr comes with. (Optional)
+Cmdr:RegisterHooksIn(CmdrFolder:WaitForChild('Hooks'))
+Cmdr:RegisterCommandsIn(CmdrFolder:WaitForChild('CommandData')) -- Register commands from your own folder. (Optional)

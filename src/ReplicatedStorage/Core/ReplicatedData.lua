@@ -5,7 +5,10 @@ local HttpService = game:GetService('HttpService')
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
-local Debounce = ReplicatedModules.Utility.Debounce
+
+local EventClass = ReplicatedModules.Classes.Event
+local DebounceModule = ReplicatedModules.Utility.Debounce
+local TableUtility = ReplicatedModules.Utility.Table
 
 local DataRemote = ReplicatedModules.Services.RemoteService:GetRemote('DataRemote', 'RemoteEvent', false)
 
@@ -14,7 +17,7 @@ local Module = {}
 warn(string.format('[%s] Replicated Data', RunService:IsServer() and 'Server' or 'Client'))
 
 if RunService:IsServer() then
-	local onDataUpdated = ReplicatedModules.Classes.Event.New("onDataUpdated")
+	local onDataUpdated = EventClass.New("onDataUpdated")
 	Module.OnDataUpdated = onDataUpdated
 
 	local comparisonCache = { Private = {}, Public = {} }
@@ -40,6 +43,12 @@ if RunService:IsServer() then
 	-- Send Data to the specified client
 	local replicateBlacklist = {"Tags"}
 	function Module:SendData(Category, Data, LocalPlayer)
+		-- remove blacklisted items
+		Data = TableUtility:DeepCopy(Data)
+		for _, blacklistIndex in ipairs( replicateBlacklist ) do
+			Data[blacklistIndex] = nil
+		end
+		-- send to player(s)
 		if LocalPlayer then
 			DataRemote:FireClient(LocalPlayer, Category, Data)
 		else
@@ -53,8 +62,8 @@ if RunService:IsServer() then
 		if LocalPlayer then
 			-- private data
 			for i, DataTable in ipairs(activeReplications.Private) do
-				local Cat, Dat, Players = unpack(DataTable)
-				if Cat == Category and table.find(Players, LocalPlayer) then
+				local Cat, Dat, PlayerTable = unpack(DataTable)
+				if Cat == Category and table.find(PlayerTable, LocalPlayer) then
 					return Dat, i
 				end
 			end
@@ -131,8 +140,8 @@ if RunService:IsServer() then
 					Module:SendData(Category, Data, LocalPlayer)
 				end
 			else
-				for _, LocalPlayer in ipairs(PlayerTable) do
-					Module:SendData(Category, Data, LocalPlayer)
+				for _, Player in ipairs(PlayerTable) do
+					Module:SendData(Category, Data, Player)
 				end
 			end
 		end
@@ -142,7 +151,7 @@ if RunService:IsServer() then
 	-- if they haven't asked in the last 2 seconds then
 	-- update their data
 	DataRemote.OnServerEvent:Connect(function(LocalPlayer)
-		if not Debounce(LocalPlayer.Name.."_FORCE_UPDATE", 2) then
+		if not DebounceModule(LocalPlayer.Name.."_FORCE_UPDATE", 2) then
 			return
 		end
 		Module:Update( LocalPlayer )
@@ -171,30 +180,30 @@ if RunService:IsServer() then
 		-- auto update players
 		task.defer(function()
 			while true do
-				Module:Update()
 				task.wait(0.25)
+				Module:Update()
 			end
 		end)
 	end
 else
-	local LocalPlayer = Players.LocalPlayer
-
 	local activeCache = { }
 	Module.Cache = activeCache
 
-	local OnDataUpdate = ReplicatedModules.Classes.Event.New('DataUpdate')
+	local OnDataUpdate = EventClass.New('DataUpdate')
 	Module.OnUpdate = OnDataUpdate
 
 	-- get the data from the category
 	-- yield until data is available if the argument passed as true
 	function Module:GetData(Category, Yield)
 		if Yield then
-			repeat task.wait(0.1) until activeCache[Category]
+			repeat task.wait(0.1)
+			until activeCache[Category]
 		end
 		return activeCache[Category]
 	end
 
 	function Module:Init( _ )
+
 		-- when this client receives data
 		DataRemote.OnClientEvent:Connect(function(Category, Data)
 			print(Category)
@@ -207,6 +216,7 @@ else
 			end
 			Module.OnUpdate:Fire(Category, Data)
 		end)
+
 		-- force update till player data is given
 		task.defer(function()
 			repeat task.wait(0.5)
@@ -216,7 +226,9 @@ else
 			print("Got Player Data")
 			Module.OnUpdate:Fire('PlayerData', Module:GetData('PlayerData'))
 		end)
+
 	end
+
 end
 
 return Module
