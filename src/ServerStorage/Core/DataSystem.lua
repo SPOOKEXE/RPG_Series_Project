@@ -4,18 +4,23 @@ local Players = game:GetService('Players')
 local ServerStorage = game:GetService('ServerStorage')
 local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local ReplicatedSystems = require(ReplicatedStorage:WaitForChild('Core'))
-local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
+-- local ReplicatedStorage = game:GetService('ReplicatedStorage')
+-- local ReplicatedSystems = require(ReplicatedStorage:WaitForChild('Core'))
+-- local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
 local ProfileService = ServerModules.Services.ProfileService
-local ReplicatedData = ReplicatedSystems.ReplicatedData
+-- local ReplicatedData = ReplicatedSystems.ReplicatedData
 
-local GameProfileStore = ProfileService.GetProfileStore('PlayerData1', {
-	Banned = false,
+local CurrentDataVersion = 1 -- change this and create a reconcile function if format of data is changed
+local DataStoreName = 'PlayerData1' -- change this to wipe data
 
-	Tags = {},
-	PurchaseHistory = {},
+local GameProfileStore = ProfileService.GetProfileStore(DataStoreName, {
+	Version = CurrentDataVersion, -- data version
+	Banned = false, -- banned
+	Saves = {}, -- saves the player saves
+	DeletedSaves = {},
+	Tags = {}, -- extra tag data
+	PurchaseHistory = {}, -- marketplace
 }).Mock
 
 local SystemsContainer = {}
@@ -39,7 +44,10 @@ end
 -- Write custom data to the player's data.
 -- Can be used to "reconcile" custom data for specific players using the tag table (or metatags).
 function Module:CustomPlayerDataWrite(LocalPlayer, Profile)
-	
+	local reconcileSucceeded, err = SystemsContainer.SaveSelectionSystem:CheckReconcileStatus(Profile, CurrentDataVersion)
+	if not reconcileSucceeded then
+		LocalPlayer:Kick('Data Reconcile Failed! ', err)
+	end
 end
 
 -- Get the player's profile if it is available (unless yielded)
@@ -51,6 +59,11 @@ function Module:GetProfileFromPlayer(LocalPlayer, Yield)
 		until ProfileCache[LocalPlayer.UserId] or (tick() - startTick) > 10
 	end
 	return ProfileCache[LocalPlayer.UserId]
+end
+
+-- Get active player data
+function Module:GetActiveSaveFromPlayer(LocalPlayer, Yield)
+	return SystemsContainer.SaveSelectionSystem:GetActiveSaveData( LocalPlayer, Yield )
 end
 
 -- Load the profile from the given ID (will prevent more requests via a lock mechanism)
@@ -69,11 +82,30 @@ function Module:LoadProfileFromId(Id)
 	return profile
 end
 
+-- Load User Id's profile
+function Module:LoadUserIdProfile(UserId)
+	local profile = Module:LoadProfileFromId(UserId)
+	if profile then
+		profile:AddUserId(UserId)
+		profile:ListenToRelease(function()
+			ProfileCache[UserId] = nil
+		end)
+		local couldReconcile = SystemsContainer.SaveSelectionSystem:CheckReconcileStatus(UserId, profile, CurrentDataVersion)
+		if not couldReconcile then
+			profile:Release()
+			return false
+		end
+		ProfileCache[UserId] = profile
+		return profile
+	end
+	return nil
+end
+
 -- Load player's profile
 function Module:LoadPlayerProfile(LocalPlayer)
 	local profile = Module:LoadProfileFromId(LocalPlayer.UserId)
 	if profile then
-		profile:Reconcile()
+		profile:Reconcile() -- only a shallow scan, SaveSelectionSystem handles the save data reconcilation
 		profile:AddUserId(LocalPlayer.UserId) -- GDPR compliance
 		profile:ListenToRelease(function()
 			ProfileCache[LocalPlayer.UserId] = nil
@@ -109,7 +141,7 @@ function Module:OnPlayerAdded(LocalPlayer)
 		warn('PlayerData did not load: ', LocalPlayer.Name)
 		return
 	end
-	ReplicatedData:SetData('PlayerData', playerProfile.Data, {LocalPlayer})
+	-- ReplicatedData:SetData('PlayerData', playerProfile.Data, {LocalPlayer})
 	return playerProfile
 end
 

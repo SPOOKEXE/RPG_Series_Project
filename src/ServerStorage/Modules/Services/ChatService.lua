@@ -9,7 +9,7 @@ local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
 --local PremiumData = ReplicatedModules.Defined.Premium
 
---local SystemsContainer = {}
+local SystemsContainer = {}
 
 -- // Module // --
 local Module = {}
@@ -35,8 +35,8 @@ function Module:UpdateChatTags( LocalPlayer )
 	]]
 end
 
-function Module:Init( _ )
-	--SystemsContainer = otherSystems
+function Module:Init( otherSystems )
+	SystemsContainer = otherSystems
 
 	for _, LocalPlayer in ipairs( Players:GetPlayers() ) do
 		task.defer(function()

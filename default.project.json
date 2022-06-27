@@ -41,6 +41,15 @@
 					"$ignoreUnknownInstances": true
 				}
 			},
+			"StarterCharacterScripts": {
+				"$className": "StarterCharacterScripts",
+				"$ignoreUnknownInstances": true,
+				"$path": "src/StarterCharacterScripts",
+				"Assets": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": true
+				}
+			},
 			"$ignoreUnknownInstances": true
 		}
 	}

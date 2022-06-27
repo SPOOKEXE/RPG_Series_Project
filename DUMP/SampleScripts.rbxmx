@@ -136,12 +136,12 @@ local Achievements = {
 local Module = {}
 
 function Module:GetAchievementBonuses( LocalPlayer )
-	local PlayerProfile = SystemsContainer.DataService:GetProfileFromPlayer( LocalPlayer )
-	if not PlayerProfile then
+	local PlayerSaveData = SystemsContainer.DataService:GetActiveSaveData( LocalPlayer )
+	if not PlayerSaveData then
 		return
 	end
 	local BonusesTable = {}
-	for i, achievmentData in ipairs( PlayerProfile.Data.Achievements ) do
+	for i, achievmentData in ipairs( PlayerSaveData.Achievements ) do
 		local achievementConfig = AchievementsData:GetAchievementFromID( achievmentData.ID )
 		if not achievementConfig then
 			warn('No achievement data set for ID: ', achievmentData.ID)
@@ -163,10 +163,10 @@ function Module:GetAchievementBonuses( LocalPlayer )
 	return BonusesTable
 end
 
-function Module:RewardBadge( LocalPlayer, PlayerProfile, AchievementData )
-	if not AchievementsData:FindPlayerAchievementByID(PlayerProfile.Data.Achievements, AchievementData.ID) then
+function Module:RewardBadge( LocalPlayer, PlayerSaveData, AchievementData )
+	if not AchievementsData:FindPlayerAchievementByID(PlayerSaveData.Achievements, AchievementData.ID) then
 		warn('Reward Achievement Effect for player ', LocalPlayer.Name, AchievementData.ID)
-		table.insert(PlayerProfile.Data.Achievements, {
+		table.insert(PlayerSaveData.Achievements, {
 			ID = AchievementData.ID, 
 			Timestamp = ReplicatedModules.Utility.Time:Get()
 		})
@@ -179,8 +179,8 @@ function Module:RewardBadge( LocalPlayer, PlayerProfile, AchievementData )
 end
 
 function Module:UpdateAchievements( LocalPlayer )
-	local PlayerProfile = SystemsContainer.DataService:GetProfileFromPlayer( LocalPlayer )
-	if not PlayerProfile then
+	local PlayerSaveData = SystemsContainer.DataService:GetActiveSaveData( LocalPlayer )
+	if not PlayerSaveData then
 		return
 	end
 	for i, achievementData in ipairs( AchievementsData.Achievements ) do
@@ -189,9 +189,9 @@ function Module:UpdateAchievements( LocalPlayer )
 			warn('No Achievement Function has been setup for achievement ', achievementData.ID)
 			continue
 		end
-		if hasAchievementReq( LocalPlayer, PlayerProfile ) then
+		if hasAchievementReq( LocalPlayer, PlayerSaveData ) then
 			--print('Has the achievment requirements; ', LocalPlayer.Name, achievementData.ID)
-			Module:RewardBadge( LocalPlayer, PlayerProfile, achievementData )
+			Module:RewardBadge( LocalPlayer, PlayerSaveData, achievementData )
 		else
 			--print('Does not have the achievement requirements; ', LocalPlayer.Name, achievementData.ID)
 		end

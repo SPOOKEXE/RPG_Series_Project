@@ -121,6 +121,24 @@ if RunService:IsServer() then
 		end
 	end
 
+	-- Remove data under a category for specific player
+	function Module:RemoveAllForPlayer( Category, Player )
+		-- properly deletes everything
+		local index = 1
+		while index <= #activeReplications.Private do
+			local replicationInfo = activeReplications.Private[index]
+			local playerIndex = replicationInfo and table.find( replicationInfo[3], Player)
+			if replicationInfo[1] == Category and playerIndex then
+				table.remove( replicationInfo[3], playerIndex)
+				if #replicationInfo[3] == 0 then
+					table.remove( activeReplications.Private, index)
+				end
+			else
+				index += 1
+			end
+		end
+	end
+
 	-- update the specified player or update all players if not specified for
 	-- every data in the replications data (public & private)
 	function Module:Update( LocalPlayer )

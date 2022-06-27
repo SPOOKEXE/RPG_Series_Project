@@ -23,7 +23,7 @@ end
 local function RequireModules(Parent, CacheTable)
 	for _, ModuleScript in ipairs( Parent:GetChildren() ) do
 		if ModuleScript:IsA('ModuleScript') then
-			print(ModuleScript:GetFullName())
+			-- print(ModuleScript:GetFullName())
 			CacheTable[ModuleScript.Name] = require(ModuleScript)
 		end
 	end

@@ -29,18 +29,18 @@ function Module:UpdateLocalLeaderboards()
 			continue
 		end
 		local keyString = Module:GetPlayerKey( LocalPlayer.UserId )
-		local profile = SystemsContainer.DataService:GetProfileFromPlayer(LocalPlayer)
-		if not profile then
+		local saveData = SystemsContainer.DataService:GetActiveSaveFromPlayer(LocalPlayer)
+		if not saveData then
 			continue
 		end
 		CrumbsLeaderboardStore:UpdateAsync(keyString, function(_)
-			return profile.Data.Crumbs
+			return saveData.Crumbs
 		end)
 		BreadsLeaderboardStore:UpdateAsync(keyString, function(_)
-			return profile.Data.Bread
+			return saveData.Bread
 		end)
 		StrikerLeaderboardStore:UpdateAsync(keyString, function(_)
-			return profile.Data.PropKills
+			return saveData.PropKills
 		end)
 	end
 
