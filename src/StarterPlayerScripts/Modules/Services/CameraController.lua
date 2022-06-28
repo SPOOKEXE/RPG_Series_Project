@@ -2,8 +2,8 @@
 local Players = game:GetService('Players')
 local LocalPlayer = Players.LocalPlayer
 
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
+-- local ReplicatedStorage = game:GetService('ReplicatedStorage')
+-- local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
 local CurrentCamera = workspace.CurrentCamera
 
@@ -56,7 +56,7 @@ function CameraController:OnUpdate()
 end
 
 function CameraController:FindByID(ID)
-	for priorityNumber, array in pairs(PriorityList) do
+	for _, array in pairs(PriorityList) do
 		for i, activePriorityData in ipairs( array ) do
 			if activePriorityData[1] == ID then
 				return i
