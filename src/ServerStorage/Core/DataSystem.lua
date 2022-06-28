@@ -17,8 +17,10 @@ local DataStoreName = 'PlayerData1' -- change this to wipe data
 local GameProfileStore = ProfileService.GetProfileStore(DataStoreName, {
 	Version = CurrentDataVersion, -- data version
 	Banned = false, -- banned
+
 	Saves = {}, -- saves the player saves
 	DeletedSaves = {},
+
 	Tags = {}, -- extra tag data
 	PurchaseHistory = {}, -- marketplace
 }).Mock
@@ -44,7 +46,7 @@ end
 -- Write custom data to the player's data.
 -- Can be used to "reconcile" custom data for specific players using the tag table (or metatags).
 function Module:CustomPlayerDataWrite(LocalPlayer, Profile)
-	local reconcileSucceeded, err = SystemsContainer.SaveSelectionSystem:CheckReconcileStatus(Profile, CurrentDataVersion)
+	local reconcileSucceeded, err = SystemsContainer.DataReconcile:CheckReconcileStatus(Profile, CurrentDataVersion)
 	if not reconcileSucceeded then
 		LocalPlayer:Kick('Data Reconcile Failed! ', err)
 	end
@@ -67,30 +69,31 @@ function Module:GetActiveSaveFromPlayer(LocalPlayer, Yield)
 end
 
 -- Load the profile from the given ID (will prevent more requests via a lock mechanism)
-function Module:LoadProfileFromId(Id)
-	if Loading[Id] then
+function Module:LoadProfileFromUserId(UserId)
+	if Loading[UserId] then
 		repeat task.wait(0.1)
-		until not Loading[Id]
+		until not Loading[UserId]
 	end
-	if ProfileCache[Id] then
-		return ProfileCache[Id]
+	if ProfileCache[UserId] then
+		return ProfileCache[UserId]
 	end
-	Loading[Id] = true
-	local profile = GameProfileStore:LoadProfileAsync(tonumber(Id) and Module:GetPlayerKey(Id) or Id, "ForceLoad")
-	ProfileCache[Id] = profile
-	Loading[Id] = nil
+	Loading[UserId] = true
+	local profile = GameProfileStore:LoadProfileAsync(tonumber(UserId) and Module:GetPlayerKey(UserId) or UserId, "ForceLoad")
+	ProfileCache[UserId] = profile
+	Loading[UserId] = nil
 	return profile
 end
 
 -- Load User Id's profile
 function Module:LoadUserIdProfile(UserId)
-	local profile = Module:LoadProfileFromId(UserId)
+	local profile = Module:LoadProfileFromUserId(UserId)
 	if profile then
+		profile:Reconcile()
 		profile:AddUserId(UserId)
 		profile:ListenToRelease(function()
 			ProfileCache[UserId] = nil
 		end)
-		local couldReconcile = SystemsContainer.SaveSelectionSystem:CheckReconcileStatus(UserId, profile, CurrentDataVersion)
+		local couldReconcile = SystemsContainer.DataReconcile:CheckReconcileStatus(UserId, profile, CurrentDataVersion)
 		if not couldReconcile then
 			profile:Release()
 			return false
@@ -103,9 +106,9 @@ end
 
 -- Load player's profile
 function Module:LoadPlayerProfile(LocalPlayer)
-	local profile = Module:LoadProfileFromId(LocalPlayer.UserId)
+	local profile = Module:LoadProfileFromUserId(LocalPlayer.UserId)
 	if profile then
-		profile:Reconcile() -- only a shallow scan, SaveSelectionSystem handles the save data reconcilation
+		profile:Reconcile()
 		profile:AddUserId(LocalPlayer.UserId) -- GDPR compliance
 		profile:ListenToRelease(function()
 			ProfileCache[LocalPlayer.UserId] = nil
