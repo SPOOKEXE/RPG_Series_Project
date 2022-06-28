@@ -2,6 +2,13 @@
 	"name": "rpg-series",
 	"tree": {
 		"$className": "DataModel",
+		"Players": {
+			"$className": "Players",
+			"$properties": {
+				"CharacterAutoLoads": false,
+				"RespawnTime" : 0
+			}
+		},
 		"ReplicatedFirst": {
 			"$className": "ReplicatedFirst",
 			"$ignoreUnknownInstances": true,
