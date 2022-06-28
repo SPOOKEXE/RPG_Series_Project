@@ -44,11 +44,7 @@
 			"StarterCharacterScripts": {
 				"$className": "StarterCharacterScripts",
 				"$ignoreUnknownInstances": true,
-				"$path": "src/StarterCharacterScripts",
-				"Assets": {
-					"$className": "Folder",
-					"$ignoreUnknownInstances": true
-				}
+				"$path": "src/StarterCharacterScripts"
 			},
 			"$ignoreUnknownInstances": true
 		}

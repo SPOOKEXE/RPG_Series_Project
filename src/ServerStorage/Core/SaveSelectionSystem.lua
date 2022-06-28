@@ -7,6 +7,7 @@ local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
 local ReplicatedData = ReplicatedCore.ReplicatedData
 
+local SaveSlotsConfig = ReplicatedModules.Data.SaveSlotsConfig
 local RemoteService = ReplicatedModules.Services.RemoteService
 local TimeUtility = ReplicatedModules.Utility.Time
 
@@ -16,8 +17,6 @@ local GetSaveDataFunction = RemoteService:GetRemote('GetSaveData', 'RemoteFuncti
 local SaveDataHandlerFunction = RemoteService:GetRemote('SaveDataFunction', 'RemoteFunction', false)
 
 local ActiveSaveCache = {}
-
-local MAX_SAVES = 3
 
 -- // Module // --
 local Module = {}
@@ -67,15 +66,16 @@ function Module:GetClientSaveSelectionData( LocalPlayer )
 	end
 	-- change the format here to whatever is needed
 	local profileSelectionData = {}
-	for slotIndex, slotData in ipairs( Profile.Data.Saves ) do
+	for slotIndex, saveData in ipairs( Profile.Data.Saves ) do
 		table.insert(profileSelectionData, {
 			SlotIndex = slotIndex,
 			-- level / currency
-			Level = slotData.Level,
-			Currency = slotData.Currency,
+			Level = saveData.Level,
+			Currency = saveData.Currency,
 			-- render character data
-			Inventory = slotData.Inventory,
-			ActiveEquipped = slotData.ActiveEquipped,
+			Inventory = saveData.Inventory,
+			ActiveEquipped = saveData.ActiveEquipped,
+			CustomCharacter = saveData.CustomCharacter
 		})
 	end
 	return profileSelectionData
@@ -104,10 +104,16 @@ function Module:CreateNewSaveSlot( LocalPlayer )
 	if not Profile then
 		return false
 	end
-	if #Profile.Data.Saves >= MAX_SAVES then
+	if #Profile.Data.Saves >= SaveSlotsConfig.MAX_SAVES then
+		return false
+	end
+	local newCharacterData = SystemsContainer.CharacterCreationSystem:GetNewlyCreatedCharacter( LocalPlayer )
+	print(newCharacterData)
+	if not newCharacterData then
 		return false
 	end
 	local newSaveData = Module:GenerateSaveData()
+	newSaveData.CustomCharacter = newCharacterData
 	table.insert(Profile.Data.Saves, newSaveData)
 	return newSaveData, #Profile.Data.Saves -- (Data, Index)
 end
@@ -118,7 +124,7 @@ function Module:DeleteSaveIndex( LocalPlayer, SaveIndex )
 		return false
 	end
 	local saveData = Profile.Data.Saves[SaveIndex]
-	if saveData then
+	if saveData and saveData.Level > 2 then
 		table.remove( Profile.Data.Saves, SaveIndex)
 		saveData.DeletedUTC = TimeUtility:GetUTC()
 		table.insert( Profile.Data.DeletedSaves, saveData )

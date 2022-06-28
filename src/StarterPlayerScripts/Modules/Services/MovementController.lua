@@ -77,18 +77,5 @@ for _, enumItem in ipairs( Blacklist ) do
 	table.remove(Keybinds, table.find(Keybinds, enumItem))
 end
 
---[[ContextActionService:BindActionAtPriority('MovementEnabled', function(actionName, inputState, inputObject)
-	--print(actionName, inputState, inputObject.KeyCode, inputObject.UserInputType)
-	--print(#PriorityIndexes)
-	if #PriorityIndexes == 0 then
-		return Enum.ContextActionResult.Pass
-	end
-	local HighestData = MovementController:GetOverrideData()
-	--print(HighestData)
-	--print(HighestData[2] and 'Movement Enabled' or 'Movement Disabled')
-	--print(HighestData[2] and Enum.ContextActionResult.Pass or Enum.ContextActionResult.Sink)
-	return HighestData[2] and Enum.ContextActionResult.Pass or Enum.ContextActionResult.Sink
-end, false, Enum.ContextActionPriority.High.Value, unpack(Keybinds))]]
-
 return MovementController
 

@@ -4,6 +4,7 @@ local LocalAssets = LocalPlayer:WaitForChild('PlayerScripts'):WaitForChild('Asse
 local LocalModules = require(LocalPlayer:WaitForChild('PlayerScripts'):WaitForChild('Modules'))
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedAssets = ReplicatedStorage:WaitForChild('Assets')
 local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
 local RemoteService = ReplicatedModules.Services.RemoteService
@@ -12,6 +13,10 @@ local SaveDataHandlerFunction = RemoteService:GetRemote('SaveDataFunction', 'Rem
 
 local MovementControllerService = LocalModules.Services.MovementController
 local CameraControllerService = LocalModules.Services.CameraController
+local ViewportUtilModule = LocalModules.Utility.ViewportUtil
+
+local SaveSlotsConfig = ReplicatedModules.Data.SaveSlotsConfig
+local OutfitApplierService = ReplicatedModules.Services.OutfitApplierService
 
 local Interface = LocalPlayer:WaitForChild('PlayerGui'):WaitForChild('Interface')
 local SaveSelectionFrame = Interface:WaitForChild('SaveSelectionFrame')
@@ -37,18 +42,22 @@ function Module:GetSaveFrame( saveData )
 		Frame.LayoutOrder = saveData.SlotIndex
 		Frame.Level.Text = 'Level '..(saveData.Level or '#')
 		Frame.Currency.Text = string.format(BASE_CURRENCY_LABEL_STRING, unpack(saveData.Currency))
+
 		Frame.Buttons.LoadSave.Activated:Connect(function()
 			if SaveDataHandlerFunction:InvokeServer('SelectSave', saveData.SlotIndex) then
 				Module:CloseWidget()
 			end
 		end)
+
 		Frame.Buttons.DeleteSave.Activated:Connect(function()
 			warn('Prompt for Delete Save confirmation')
 			if SaveDataHandlerFunction:InvokeServer('DeleteSave', saveData.SlotIndex) then
 				Module:UpdateWidget()
 			end
 		end)
-		-- Frame.Viewport
+
+		local BlankDummyInstance, _ = ViewportUtilModule:SetupModelViewport(Frame.Viewport, ReplicatedAssets.Models.BlankDummy, SaveSlotsConfig.DummyCameraCFrame, SaveSlotsConfig.DummyModelCFrame)
+		OutfitApplierService:ApplyCharacterCreatorOutfitData( BlankDummyInstance, saveData.CustomCharacter, true )
 		Frame.Parent = SaveSelectionScroll
 		Module.WidgetMaid:Give(Frame)
 	end
@@ -76,6 +85,7 @@ function Module:UpdateWidget()
 	-- Change canvas size
 	local offsetNumber = (#frameCache - 2) * 225
 	SaveSelectionScroll.CanvasSize = UDim2.fromOffset(0, SaveSelectionScroll.AbsoluteSize.Y + offsetNumber)
+	CreateSaveButton.Parent.Visible = #Data < SaveSlotsConfig.MAX_SAVES
 	-- Remove any unneeded frames (using frameCache)
 	for _, GuiObject in ipairs( SaveSelectionScroll:GetChildren() ) do
 		if GuiObject:IsA('Frame') and GuiObject.Name ~= 'CreateSaveFrame' and not table.find(frameCache, GuiObject) then

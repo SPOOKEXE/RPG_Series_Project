@@ -22,6 +22,7 @@ end
 
 function Module:WeldConstraint(WeldMe, ToThis)
 	local constraint = Instance.new('WeldConstraint')
+	constraint.Name = 'WeldConstraintInstance'
 	constraint.Part0 = WeldMe
 	constraint.Part1 = ToThis
 	constraint.Parent = ToThis

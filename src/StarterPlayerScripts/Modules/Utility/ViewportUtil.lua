@@ -14,14 +14,16 @@ function Module:SetupModelForViewport( ClonedModel )
 end
 
 function Module:SetupModelViewport(Viewport, Model, CameraCFrame, ModelCFrame)
-	if not Model then return end
+	if not Model then
+		return false, false
+	end
 	Model = Model:Clone()
 	Module:SetupModelForViewport( Model )
 	Model:SetPrimaryPartCFrame( ModelCFrame )
 	Model.Parent = Viewport
 	local Camera = Module:ViewportCamera(Viewport)
 	Camera.CFrame = CameraCFrame
-	return Camera
+	return Model, Camera
 end
 
 function Module:ViewportCamera(ViewportFrame)

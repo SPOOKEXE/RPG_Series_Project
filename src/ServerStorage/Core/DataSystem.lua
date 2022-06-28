@@ -4,12 +4,12 @@ local Players = game:GetService('Players')
 local ServerStorage = game:GetService('ServerStorage')
 local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 
--- local ReplicatedStorage = game:GetService('ReplicatedStorage')
--- local ReplicatedSystems = require(ReplicatedStorage:WaitForChild('Core'))
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedCore = require(ReplicatedStorage:WaitForChild('Core'))
 -- local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
 local ProfileService = ServerModules.Services.ProfileService
--- local ReplicatedData = ReplicatedSystems.ReplicatedData
+local ReplicatedData = ReplicatedCore.ReplicatedData
 
 local CurrentDataVersion = 1 -- change this and create a reconcile function if format of data is changed
 local DataStoreName = 'PlayerData1' -- change this to wipe data
@@ -144,7 +144,7 @@ function Module:OnPlayerAdded(LocalPlayer)
 		warn('PlayerData did not load: ', LocalPlayer.Name)
 		return
 	end
-	-- ReplicatedData:SetData('PlayerData', playerProfile.Data, {LocalPlayer})
+	ReplicatedData:SetData('PlayerProfileData', playerProfile.Data, {LocalPlayer})
 	return playerProfile
 end
 
