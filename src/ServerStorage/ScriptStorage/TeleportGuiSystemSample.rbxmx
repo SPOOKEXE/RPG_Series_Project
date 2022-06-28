@@ -1,0 +1,298 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Folder" referent="RBX3E9842062D5840B9B6722ADBDD369E85">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<string name="Name">SharedGui</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="ScreenGui" referent="RBX7BDF4049D6FA49688CB73C46ED57B8D4">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="AutoLocalize">true</bool>
+				<int name="DisplayOrder">50</int>
+				<bool name="Enabled">true</bool>
+				<bool name="IgnoreGuiInset">true</bool>
+				<string name="Name">TeleportGui</string>
+				<bool name="ResetOnSpawn">false</bool>
+				<Ref name="RootLocalizationTable">null</Ref>
+				<token name="SelectionBehaviorDown">0</token>
+				<token name="SelectionBehaviorLeft">0</token>
+				<token name="SelectionBehaviorRight">0</token>
+				<token name="SelectionBehaviorUp">0</token>
+				<bool name="SelectionGroup">false</bool>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<token name="ZIndexBehavior">1</token>
+			</Properties>
+			<Item class="Frame" referent="RBXDF2F3EA741B445BDAA8117CFE15D04ED">
+				<Properties>
+					<bool name="Active">false</bool>
+					<Vector2 name="AnchorPoint">
+						<X>0</X>
+						<Y>0</Y>
+					</Vector2>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="AutoLocalize">true</bool>
+					<token name="AutomaticSize">0</token>
+					<Color3 name="BackgroundColor3">
+						<R>0.141176477</R>
+						<G>0.141176477</G>
+						<B>0.141176477</B>
+					</Color3>
+					<float name="BackgroundTransparency">0</float>
+					<Color3 name="BorderColor3">
+						<R>0.105882362</R>
+						<G>0.164705887</G>
+						<B>0.207843155</B>
+					</Color3>
+					<token name="BorderMode">0</token>
+					<int name="BorderSizePixel">0</int>
+					<bool name="ClipsDescendants">false</bool>
+					<bool name="Draggable">false</bool>
+					<int name="LayoutOrder">0</int>
+					<string name="Name">Frame</string>
+					<Ref name="NextSelectionDown">null</Ref>
+					<Ref name="NextSelectionLeft">null</Ref>
+					<Ref name="NextSelectionRight">null</Ref>
+					<Ref name="NextSelectionUp">null</Ref>
+					<UDim2 name="Position">
+						<XS>0</XS>
+						<XO>0</XO>
+						<YS>0</YS>
+						<YO>0</YO>
+					</UDim2>
+					<Ref name="RootLocalizationTable">null</Ref>
+					<float name="Rotation">0</float>
+					<bool name="Selectable">false</bool>
+					<token name="SelectionBehaviorDown">0</token>
+					<token name="SelectionBehaviorLeft">0</token>
+					<token name="SelectionBehaviorRight">0</token>
+					<token name="SelectionBehaviorUp">0</token>
+					<bool name="SelectionGroup">false</bool>
+					<Ref name="SelectionImageObject">null</Ref>
+					<int name="SelectionOrder">0</int>
+					<UDim2 name="Size">
+						<XS>1</XS>
+						<XO>0</XO>
+						<YS>1</YS>
+						<YO>0</YO>
+					</UDim2>
+					<token name="SizeConstraint">0</token>
+					<int64 name="SourceAssetId">-1</int64>
+					<token name="Style">0</token>
+					<BinaryString name="Tags"></BinaryString>
+					<bool name="Visible">true</bool>
+					<int name="ZIndex">1</int>
+				</Properties>
+				<Item class="TextLabel" referent="RBX0D28411314B84571B57B9B99AB9127A4">
+					<Properties>
+						<bool name="Active">false</bool>
+						<Vector2 name="AnchorPoint">
+							<X>0.5</X>
+							<Y>0.5</Y>
+						</Vector2>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<bool name="AutoLocalize">true</bool>
+						<token name="AutomaticSize">0</token>
+						<Color3 name="BackgroundColor3">
+							<R>1</R>
+							<G>1</G>
+							<B>1</B>
+						</Color3>
+						<float name="BackgroundTransparency">1</float>
+						<Color3 name="BorderColor3">
+							<R>0.105882362</R>
+							<G>0.164705887</G>
+							<B>0.207843155</B>
+						</Color3>
+						<token name="BorderMode">0</token>
+						<int name="BorderSizePixel">0</int>
+						<bool name="ClipsDescendants">false</bool>
+						<bool name="Draggable">false</bool>
+						<token name="Font">45</token>
+						<Font name="FontFace"></Font>
+						<int name="LayoutOrder">0</int>
+						<float name="LineHeight">1</float>
+						<int name="MaxVisibleGraphemes">-1</int>
+						<string name="Name">Label</string>
+						<Ref name="NextSelectionDown">null</Ref>
+						<Ref name="NextSelectionLeft">null</Ref>
+						<Ref name="NextSelectionRight">null</Ref>
+						<Ref name="NextSelectionUp">null</Ref>
+						<UDim2 name="Position">
+							<XS>0.5</XS>
+							<XO>0</XO>
+							<YS>0.5</YS>
+							<YO>0</YO>
+						</UDim2>
+						<bool name="RichText">false</bool>
+						<Ref name="RootLocalizationTable">null</Ref>
+						<float name="Rotation">0</float>
+						<bool name="Selectable">false</bool>
+						<token name="SelectionBehaviorDown">0</token>
+						<token name="SelectionBehaviorLeft">0</token>
+						<token name="SelectionBehaviorRight">0</token>
+						<token name="SelectionBehaviorUp">0</token>
+						<bool name="SelectionGroup">false</bool>
+						<Ref name="SelectionImageObject">null</Ref>
+						<int name="SelectionOrder">0</int>
+						<UDim2 name="Size">
+							<XS>0.5</XS>
+							<XO>0</XO>
+							<YS>0.200000003</YS>
+							<YO>0</YO>
+						</UDim2>
+						<token name="SizeConstraint">0</token>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<string name="Text">Teleporting</string>
+						<Color3 name="TextColor3">
+							<R>1</R>
+							<G>1</G>
+							<B>1</B>
+						</Color3>
+						<bool name="TextScaled">true</bool>
+						<float name="TextSize">17</float>
+						<Color3 name="TextStrokeColor3">
+							<R>0</R>
+							<G>0</G>
+							<B>0</B>
+						</Color3>
+						<float name="TextStrokeTransparency">1</float>
+						<float name="TextTransparency">0</float>
+						<token name="TextTruncate">0</token>
+						<bool name="TextWrapped">true</bool>
+						<token name="TextXAlignment">2</token>
+						<token name="TextYAlignment">1</token>
+						<bool name="Visible">true</bool>
+						<int name="ZIndex">1</int>
+					</Properties>
+					<Item class="UIAspectRatioConstraint" referent="RBX7C2160D5A50143D58A65D61386E5A987">
+						<Properties>
+							<float name="AspectRatio">3</float>
+							<token name="AspectType">1</token>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<token name="DominantAxis">0</token>
+							<string name="Name">UIAspectRatioConstraint</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+						</Properties>
+					</Item>
+				</Item>
+			</Item>
+			<Item class="LocalScript" referent="RBX913860FC65D341F28FE4E3FC8A536A35">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="Disabled">false</bool>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Test</string>
+					<string name="ScriptGuid">{0283BD3B-E7EE-4B27-9E6A-E03FDA64F48A}</string>
+					<ProtectedString name="Source"><![CDATA[
+print('Active ; ', game.PlaceId, script.Parent.TargetPlaceId.Value, script:GetFullName())
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+			<Item class="IntValue" referent="RBX6BEB0409A26E4125B5272344AAA45379">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">TargetPlaceId</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<int64 name="Value">0</int64>
+				</Properties>
+			</Item>
+		</Item>
+	</Item>
+	<Item class="LocalScript" referent="RBXF0D275667F044E52B45F5313B317D318">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<bool name="Disabled">false</bool>
+			<Content name="LinkedSource"><null></null></Content>
+			<string name="Name">IncomingGuiHandler</string>
+			<string name="ScriptGuid">{7ACC3673-08AE-4032-822A-5454FFC67B3F}</string>
+			<ProtectedString name="Source"><![CDATA[
+local StarterGui = game:GetService('StarterGui')
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local TeleportService = game:GetService('TeleportService')
+local HttpService = game:GetService('HttpService')
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local teleportData = TeleportService:GetLocalPlayerTeleportData()
+local joinData = LocalPlayer:GetJoinData()
+print( teleportData and HttpService:JSONEncode(teleportData), joinData and HttpService:JSONEncode(joinData) )
+print('Source Place ; ', joinData.SourcePlaceId)
+
+local customLoadingScreen = TeleportService:GetArrivingTeleportGui()
+if customLoadingScreen and customLoadingScreen.Name == 'TeleportGui' then
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	ReplicatedFirst:RemoveDefaultLoadingScreen()
+	print(game.PlaceId, customLoadingScreen.TargetPlaceId.Value)
+	customLoadingScreen.Frame.Label.Text = 'Loading...'
+	customLoadingScreen.Parent = playerGui
+	task.wait(5)
+	customLoadingScreen:Destroy()
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+end
+
+]]></ProtectedString>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+	</Item>
+	<Item class="Script" referent="RBX13BF75AAF17F41FB91455B435479828B">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<bool name="Disabled">false</bool>
+			<Content name="LinkedSource"><null></null></Content>
+			<string name="Name">TeleportBrick</string>
+			<string name="ScriptGuid">{1703AFB7-5B7F-4000-A081-CBE05FD96511}</string>
+			<ProtectedString name="Source"><![CDATA[local TeleportService = game:GetService('TeleportService')
+
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local TeleportGuiBase = ReplicatedStorage.SharedGui.TeleportGui
+
+local function TeleportWithGui(LocalPlayer, toPlaceId)
+	local teleportOptions = Instance.new('TeleportOptions')
+	local NewGui = TeleportGuiBase:Clone()
+	NewGui.TargetPlaceId.Value = toPlaceId
+	TeleportService:TeleportPartyAsync(toPlaceId, {LocalPlayer}, false, NewGui)
+end
+
+local Players = game:GetService('Players')
+
+local Part = workspace.Part
+
+local TargetPlaceId = 9745529395
+
+Part.Touched:Connect(function(Hit)
+	local LocalPlayer = Players:GetPlayerFromCharacter(Hit.Parent)
+	if LocalPlayer and not LocalPlayer:GetAttribute('Debounce') then
+		LocalPlayer:SetAttribute('Debounce', true)
+		TeleportGuiBase:Clone().Parent = LocalPlayer.PlayerGui
+		TeleportWithGui(LocalPlayer, TargetPlaceId)
+	end
+end)
+
+game:BindToClose(function()
+	for _, LocalPlayer in ipairs( Players:GetPlayers() ) do
+		task.spawn(TeleportWithGui, LocalPlayer, TargetPlaceId)
+	end
+	Players.PlayerAdded:Connect(function(LocalPlayer)
+		TeleportWithGui(LocalPlayer, TargetPlaceId)
+	end)
+end)
+]]></ProtectedString>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+	</Item>
+</roblox>
