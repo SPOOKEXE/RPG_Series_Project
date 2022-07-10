@@ -70,12 +70,5 @@ function MovementController:SetMovementEnabled( ID, IsEnabled )
 	return MovementController:SetMovementEnabledWithPriority(1, ID, IsEnabled)
 end
 
--- keybinds to disable
-local Keybinds = Enum.KeyCode:GetEnumItems()
-local Blacklist = {Enum.KeyCode.X, Enum.KeyCode.Tab, Enum.KeyCode.Return}
-for _, enumItem in ipairs( Blacklist ) do
-	table.remove(Keybinds, table.find(Keybinds, enumItem))
-end
-
 return MovementController
 
